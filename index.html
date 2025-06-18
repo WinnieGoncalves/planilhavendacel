@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>Controle de Parcelas - R$ 120,00</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .summary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            min-width: 700px;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        tr:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .parcela {
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .valor {
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+        
+        .valor-pendente {
+            color: #e53e3e !important;
+            background: #fed7d7;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 2px solid #fc8181;
+        }
+        
+        .valor-parcial {
+            color: #d69e2e !important;
+            background: #fef5e7;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 2px solid #f6e05e;
+        }
+        
+        .valor-pago {
+            color: #38a169 !important;
+            background: #f0fff4;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 2px solid #68d391;
+        }
+        
+        input[type="date"] {
+            padding: 12px 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: white;
+        }
+        
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 5px;
+            opacity: 0.6;
+        }
+        
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+        
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-select {
+            padding: 12px 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            width: 100%;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        .status-select::-ms-expand {
+            display: none;
+        }
+        
+        /* Seta customizada para select */
+        .status-select {
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+            padding-right: 30px;
+        }
+        
+        .status-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .status-pendente {
+            background: #fed7d7 !important;
+            color: #e53e3e !important;
+            border-color: #fc8181 !important;
+        }
+        
+        .status-parcial {
+            background: #fef5e7 !important;
+            color: #d69e2e !important;
+            border-color: #f6e05e !important;
+        }
+        
+        .status-pago {
+            background: #f0fff4 !important;
+            color: #38a169 !important;
+            border-color: #68d391 !important;
+        }
+        
+        .valor-input {
+            padding: 8px 10px;
+            border: 2px solid #f6e05e;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            width: 100px;
+            text-align: center;
+            background: #fef5e7;
+            color: #d69e2e;
+            margin-top: 5px;
+        }
+        
+        .valor-input:focus {
+            outline: none;
+            border-color: #d69e2e;
+            box-shadow: 0 0 0 2px rgba(214, 158, 46, 0.2);
+        }
+        
+        .valor-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+        
+        .checkbox-label {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .pago {
+            text-decoration: line-through;
+            color: #38a169;
+            font-weight: bold;
+        }
+        
+        .row-pago {
+            background: #f0fff4 !important;
+        }
+        
+        .total-pago {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                padding: 15px;
+                margin: 5px;
+                border-radius: 10px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+            
+            .summary {
+                padding: 15px;
+                font-size: 14px;
+            }
+            
+            table {
+                font-size: 13px;
+                min-width: 650px;
+            }
+            
+            th, td {
+                padding: 8px 6px;
+            }
+            
+            th {
+                font-size: 12px;
+            }
+            
+            input[type="date"], .status-select {
+                padding: 10px 8px;
+                font-size: 14px;
+                min-height: 38px;
+            }
+            
+            .valor {
+                font-size: 13px;
+            }
+            
+            .valor-input {
+                width: 80px;
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+            
+            .total-pago {
+                font-size: 14px;
+                padding: 12px;
+            }
+            
+            /* Melhor visualização no iPhone */
+            .parcela {
+                white-space: nowrap;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+                margin: 2px;
+            }
+            
+            h1 {
+                font-size: 1.3em;
+            }
+            
+            table {
+                min-width: 600px;
+                font-size: 12px;
+            }
+            
+            th, td {
+                padding: 6px 4px;
+            }
+            
+            input[type="date"], .status-select {
+                font-size: 14px;
+                padding: 8px 6px;
+                min-height: 36px;
+            }
+            
+            .valor-input {
+                width: 70px;
+                font-size: 11px;
+                padding: 5px 6px;
+            }
+            
+            .total-pago {
+                font-size: 13px;
+                padding: 10px;
+            }
+        }
+        
+        /* Específico para iPhone */
+        @supports (-webkit-touch-callout: none) {
+            input[type="date"] {
+                -webkit-appearance: none;
+                border-radius: 8px;
+            }
+            
+            .status-select {
+                -webkit-appearance: none;
+                border-radius: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Controle de Parcelas</h1>
+        
+        <div class="summary">
+            <h3>WALLYSSON</h3>
+            <p><strong>Total:</strong> R$ 1.200,00 | <strong>Parcelas:</strong> 10x de R$ 120,00</p>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Parcela</th>
+                    <th>Data do Acordo</th>
+                    <th>Vencimento</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaParcelas">
+                <!-- As linhas serão geradas pelo JavaScript -->
+            </tbody>
+        </table>
+        
+        <div class="total-pago" id="totalPago">
+            Total Pago: R$ 0,00 | Parcial: R$ 0,00 | Restante: R$ 1.200,00
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; padding: 15px; background: #f7fafc; border-radius: 10px; color: #4a5568;">
+            <small><strong>by Winnie</strong></small>
+        </div>
+    </div>
+
+    <script>
+        // Gerar as linhas da tabela
+        function gerarTabela() {
+            const tbody = document.getElementById('tabelaParcelas');
+            
+            for (let i = 1; i <= 10; i++) {
+                const row = document.createElement('tr');
+                row.id = `row-${i}`;
+                
+                row.innerHTML = `
+                    <td class="parcela">Parcela ${i}/10</td>
+                    <td>
+                        <input type="date" id="data-${i}" onchange="salvarDados()">
+                    </td>
+                    <td>
+                        <input type="date" id="vencimento-${i}" onchange="salvarDados()">
+                    </td>
+                    <td class="valor">
+                        <div class="valor-container">
+                            <span class="valor-display valor-pendente" id="valor-display-${i}">R$ 120,00</span>
+                            <input type="number" class="valor-input" id="valor-input-${i}" 
+                                   min="10" max="120" step="10" value="120" 
+                                   style="display: none;" 
+                                   onchange="atualizarValorParcial(${i})"
+                                   onblur="salvarDados()">
+                        </div>
+                    </td>
+                    <td>
+                        <select class="status-select status-pendente" id="status-${i}" onchange="alterarStatus(${i})">
+                            <option value="pendente">Pendente</option>
+                            <option value="parcial">Parcial</option>
+                            <option value="pago">Pago</option>
+                        </select>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            }
+            
+            carregarDados();
+        }
+        
+        // Alterar status da parcela
+        function alterarStatus(parcela) {
+            const select = document.getElementById(`status-${parcela}`);
+            const valorDisplay = document.getElementById(`valor-display-${parcela}`);
+            const valorInput = document.getElementById(`valor-input-${parcela}`);
+            const row = document.getElementById(`row-${parcela}`);
+            
+            // Remover classes antigas
+            select.classList.remove('status-pendente', 'status-parcial', 'status-pago');
+            valorDisplay.classList.remove('valor-pendente', 'valor-parcial', 'valor-pago');
+            row.classList.remove('row-pago');
+            
+            // Adicionar novas classes e mostrar/esconder input baseado no status
+            switch(select.value) {
+                case 'pendente':
+                    select.classList.add('status-pendente');
+                    valorDisplay.classList.add('valor-pendente');
+                    valorDisplay.style.display = 'block';
+                    valorInput.style.display = 'none';
+                    valorDisplay.textContent = 'R$ 120,00';
+                    break;
+                case 'parcial':
+                    select.classList.add('status-parcial');
+                    valorDisplay.classList.add('valor-parcial');
+                    valorDisplay.style.display = 'none';
+                    valorInput.style.display = 'block';
+                    valorInput.focus();
+                    break;
+                case 'pago':
+                    select.classList.add('status-pago');
+                    valorDisplay.classList.add('valor-pago');
+                    valorDisplay.style.display = 'block';
+                    valorInput.style.display = 'none';
+                    valorDisplay.textContent = 'R$ 120,00';
+                    row.classList.add('row-pago');
+                    break;
+            }
+            
+            atualizarTotal();
+            salvarDados();
+        }
+        
+        // Atualizar valor parcial
+        function atualizarValorParcial(parcela) {
+            const valorInput = document.getElementById(`valor-input-${parcela}`);
+            let valor = parseFloat(valorInput.value);
+            
+            // Validar limites
+            if (valor < 10) {
+                valor = 10;
+                valorInput.value = 10;
+            } else if (valor > 120) {
+                valor = 120;
+                valorInput.value = 120;
+            }
+            
+            // Garantir que seja múltiplo de 10
+            valor = Math.round(valor / 10) * 10;
+            valorInput.value = valor;
+            
+            atualizarTotal();
+        }
+        
+        // Atualizar total pago
+        function atualizarTotal() {
+            let totalPago = 0;
+            let totalParcial = 0;
+            let totalPendente = 0;
+            
+            for (let i = 1; i <= 10; i++) {
+                const select = document.getElementById(`status-${i}`);
+                const valorInput = document.getElementById(`valor-input-${i}`);
+                
+                switch(select.value) {
+                    case 'pago':
+                        totalPago += 120;
+                        break;
+                    case 'parcial':
+                        const valorParcial = parseFloat(valorInput.value) || 0;
+                        totalParcial += valorParcial;
+                        totalPendente += (120 - valorParcial);
+                        break;
+                    case 'pendente':
+                        totalPendente += 120;
+                        break;
+                }
+            }
+            
+            const totalElement = document.getElementById('totalPago');
+            
+            totalElement.innerHTML = `
+                Total Pago: R$ ${totalPago.toFixed(2).replace('.', ',')} | 
+                Parcial: R$ ${totalParcial.toFixed(2).replace('.', ',')} | 
+                Restante: R$ ${totalPendente.toFixed(2).replace('.', ',')}
+            `;
+            
+            // Mudar cor baseado no progresso
+            if (totalPendente === 0) {
+                totalElement.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
+                totalElement.innerHTML += ' 🎉 QUITADO!';
+            } else if (totalPago > 0 || totalParcial > 0) {
+                totalElement.style.background = 'linear-gradient(135deg, #ed8936 0%, #dd6b20 100%)';
+            } else {
+                totalElement.style.background = 'linear-gradient(135deg, #e53e3e 0%, #c53030 100%)';
+            }
+        }
+        
+        // Salvar dados permanentemente
+        function salvarDados() {
+            const dados = {};
+            
+            for (let i = 1; i <= 10; i++) {
+                dados[`data-${i}`] = document.getElementById(`data-${i}`).value;
+                dados[`vencimento-${i}`] = document.getElementById(`vencimento-${i}`).value;
+                dados[`status-${i}`] = document.getElementById(`status-${i}`).value;
+                dados[`valor-${i}`] = document.getElementById(`valor-input-${i}`).value;
+            }
+            
+            // Salvar no armazenamento local do navegador
+            localStorage.setItem('parcelasDados', JSON.stringify(dados));
+        }
+        
+        // Carregar dados salvos
+        function carregarDados() {
+            const dadosSalvos = localStorage.getItem('parcelasDados');
+            if (dadosSalvos) {
+                const dados = JSON.parse(dadosSalvos);
+                
+                for (let i = 1; i <= 10; i++) {
+                    if (dados[`data-${i}`]) {
+                        document.getElementById(`data-${i}`).value = dados[`data-${i}`];
+                    }
+                    if (dados[`vencimento-${i}`]) {
+                        document.getElementById(`vencimento-${i}`).value = dados[`vencimento-${i}`];
+                    }
+                    if (dados[`valor-${i}`]) {
+                        document.getElementById(`valor-input-${i}`).value = dados[`valor-${i}`];
+                    }
+                    if (dados[`status-${i}`]) {
+                        document.getElementById(`status-${i}`).value = dados[`status-${i}`];
+                        alterarStatus(i);
+                    }
+                }
+            }
+            
+            atualizarTotal();
+        }
+        
+        // Inicializar a tabela quando a página carregar
+        document.addEventListener('DOMContentLoaded', gerarTabela);
+    </script>
+</body>
+</html>
